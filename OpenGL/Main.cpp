@@ -25,9 +25,15 @@ int main()
 
 	GLfloat vertices[] =
 	{
-		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f
+		 0.5f,  0.5f, 0.0f,  // top right
+		 0.5f, -0.5f, 0.0f,  // bottom right
+		-0.5f, -0.5f, 0.0f,  // bottom left
+		-0.5f,  0.5f, 0.0f   // top left 
+	};
+
+	GLuint indices[] = {
+		0, 1, 3,   // first triangle
+		1, 2, 3    // second triangle
 	};
 
 	GLFWwindow* window = glfwCreateWindow(800, 800, "OpenGL", NULL, NULL);
@@ -47,7 +53,7 @@ int main()
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
 
-	GLuint fragmentShader = glCreateShader(GL_VERTEX_SHADER);
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
 
@@ -55,38 +61,43 @@ int main()
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
+	glUseProgram(shaderProgram);
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
 	GLuint vertexArraysObject;
 	GLuint vertexBufferObject;
+	GLuint elementBufferObjects;
 
 	glGenVertexArrays(1, &vertexArraysObject);
-	glGenBuffers(1, &vertexBufferObject);
-
 	glBindVertexArray(vertexArraysObject);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
 
+	glGenBuffers(1, &vertexBufferObject);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	
+	glGenBuffers(1, &elementBufferObjects);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObjects);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	
 	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
-	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glfwSwapBuffers(window);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(shaderProgram);
+
 		glBindVertexArray(vertexArraysObject);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
@@ -94,6 +105,7 @@ int main()
 
 	glDeleteVertexArrays(1, &vertexArraysObject);
 	glDeleteBuffers(1, &vertexBufferObject);
+	glDeleteBuffers(1, &elementBufferObjects);
 	glDeleteProgram(shaderProgram);
 
 	glfwDestroyWindow(window);
