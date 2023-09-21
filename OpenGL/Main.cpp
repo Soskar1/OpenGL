@@ -2,18 +2,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"	FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
-"}\n\0";
+#include "Shader.h"
+#include "VAO.h"
+#include "VBO.h"
+#include "EBO.h"
 
 int main() 
 {
@@ -49,52 +41,26 @@ int main()
 
 	glViewport(0, 0, 800, 800);
 
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
+	Shader shaderProgram("default.vert", "default.frag");
 
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
+	VAO vao;
+	vao.bind();
 
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-	glUseProgram(shaderProgram);
+	VBO vbo(vertices, sizeof(vertices));
+	EBO ebo(indices, sizeof(indices));
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	GLuint vertexArraysObject;
-	GLuint vertexBufferObject;
-	GLuint elementBufferObjects;
-
-	glGenVertexArrays(1, &vertexArraysObject);
-	glBindVertexArray(vertexArraysObject);
-
-	glGenBuffers(1, &vertexBufferObject);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	
-	glGenBuffers(1, &elementBufferObjects);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObjects);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	
-	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	vao.linkVBO(vbo, 0);
+	vao.unbind();
+	vbo.unbind();
+	ebo.unbind();
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glBindVertexArray(vertexArraysObject);
+		shaderProgram.activate();
+		vao.bind();
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -103,10 +69,10 @@ int main()
 		glfwPollEvents();
 	}
 
-	glDeleteVertexArrays(1, &vertexArraysObject);
-	glDeleteBuffers(1, &vertexBufferObject);
-	glDeleteBuffers(1, &elementBufferObjects);
-	glDeleteProgram(shaderProgram);
+	vao.destroy();
+	vbo.destroy();
+	ebo.destroy();
+	shaderProgram.destroy();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
