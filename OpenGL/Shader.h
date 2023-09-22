@@ -17,6 +17,9 @@ public:
 
 	void activate();
 	void destroy();
+
+private:
+	void compileErrors(unsigned int shade, const char* type);
 };
 
 #endif

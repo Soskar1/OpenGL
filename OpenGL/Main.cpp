@@ -17,10 +17,11 @@ int main()
 
 	GLfloat vertices[] =
 	{
-		 0.5f,  0.5f, 0.0f,  // top right
-		 0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  // bottom left
-		-0.5f,  0.5f, 0.0f   // top left 
+	//		Coordinates				Color
+		 0.5f,  0.5f, 0.0f,		0.8f, 0.3f, 0.02f,  // top right
+		 0.5f, -0.5f, 0.0f,		0.8f, 0.3f, 0.02f, // bottom right
+		-0.5f, -0.5f, 0.0f,		1.0f, 0.6f, 0.32f,  // bottom left
+		-0.5f,  0.5f, 0.0f,		0.9f, 0.45f, 0.17f   // top left 
 	};
 
 	GLuint indices[] = {
@@ -49,10 +50,13 @@ int main()
 	VBO vbo(vertices, sizeof(vertices));
 	EBO ebo(indices, sizeof(indices));
 
-	vao.linkVBO(vbo, 0);
+	vao.linkAttributes(vbo, 0, 3, GL_FLOAT, 6 * (sizeof(float)), (void*)0);
+	vao.linkAttributes(vbo, 1, 3, GL_FLOAT, 6 * (sizeof(float)), (void*)(3 * sizeof(float)));
 	vao.unbind();
 	vbo.unbind();
 	ebo.unbind();
+
+	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -60,6 +64,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		shaderProgram.activate();
+		glUniform1f(uniID, 0.25f);
 		vao.bind();
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
