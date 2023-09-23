@@ -9,7 +9,7 @@ public:
 	GLuint ID;
 	VAO();
 
-	void linkAttributes(VBO vbo, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset);
+	void linkAttributes(VBO& vbo, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset);
 	void bind();
 	void unbind();
 	void destroy();

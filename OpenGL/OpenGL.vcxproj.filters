@@ -75,5 +75,8 @@
     <Image Include="among_us.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
+    <Image Include="brick.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>
